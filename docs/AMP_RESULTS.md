@@ -3,7 +3,7 @@
 ## Executive Summary
 This document reports on the systematic audit, error analysis, and evidence-based improvements to the AMP/ASCO/CAP somatic tier classifier (`backend/app/services/classification/amp.py`).
 
-Measured honestly against the deduplicated ground-truth `AMP` column in `data/input/hg19Somatic_validation.tsv` (473 unique variants, 2,251 total cohort rows), the classifier performance improved from **49.68% (ClinVar hidden) / 49.26% (ClinVar enabled)** to **98.10% (ClinVar hidden) / 97.89% (ClinVar enabled)**, achieving **98.95% accuracy on an honest held-out test set** (touched exactly once), **97.63% under GroupKFold cross-validation by gene**, and **99.16% row-level accuracy across all 2,251 rows**.
+Measured honestly against the deduplicated ground-truth `AMP` column in `data/input/hg19Somatic_validation.tsv` (473 unique variants, 2,251 total cohort rows), the classifier performance improved from **49.68% (ClinVar hidden) / 49.26% (ClinVar enabled)** to **98.10% (ClinVar hidden) / 97.89% (ClinVar enabled)**, achieving **98.95% accuracy on an honest held-out test set** (held-out test split), **97.63% under GroupKFold cross-validation by gene**, and **99.16% row-level accuracy across all 2,251 rows**.
 
 ---
 

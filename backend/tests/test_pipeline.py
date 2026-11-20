@@ -53,7 +53,7 @@ def test_sources_run_concurrently_not_one_after_another(tmp_db):
     svc.clients = {n: Slow(n) for n in ("myvariant", "clinvar", "gnomad", "tcga")}
     t0 = time.monotonic()
     svc.gather(ok[:3])
-    assert time.monotonic() - t0 < 0.9   # 4 x 0.3 s sequentially would be 1.2 s
+    assert time.monotonic() - t0 < 0.9
 
 
 def test_a_crashing_source_does_not_break_the_run(tmp_db):
@@ -76,7 +76,7 @@ def test_a_crashing_source_does_not_break_the_run(tmp_db):
 
 def test_rules_folder_matches_the_code():
     import json
-    from export_rules import current_rules   # scripts/ is on the pytest path
+    from export_rules import current_rules
 
     for name, content in current_rules().items():
         on_disk = json.loads((ROOT / "rules" / name).read_text())

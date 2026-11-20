@@ -71,7 +71,7 @@ class MyVariantClient:
         by_id: dict[str, dict] = {}
         for entry in payload:
             q = entry.get("query")
-            if q is not None and q not in by_id:  # keep the first hit per query
+            if q is not None and q not in by_id:
                 by_id[q] = {"notfound": True} if entry.get("notfound") else entry
         return "AVAILABLE", by_id
 
@@ -79,7 +79,7 @@ class MyVariantClient:
         self.stats = SourceStats()
         breaker = CircuitBreaker(threshold=3, deadline_seconds=self.max_seconds)
         results: dict[str, EvidenceResult] = {}
-        pending: dict[tuple[str, str], list[Variant]] = {}   # (assembly, hgvs_id) -> variants needing a live call
+        pending: dict[tuple[str, str], list[Variant]] = {}
 
         for v in variants:
             if v.genome_build not in _BUILD_TO_ASSEMBLY:
@@ -136,7 +136,7 @@ class MyVariantClient:
                 t0 = time.monotonic()
                 try:
                     status, payload = self._live_fetch_many(ids, assembly, client)
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     status, payload = "SOURCE_UNAVAILABLE", {"error": type(e).__name__}
                 ok = status == "AVAILABLE"
                 self.stats.live(ok, time.monotonic() - t0, n=n_variants)

@@ -96,7 +96,7 @@ class TcgaClient:
                 if progress:
                     progress(1)
             else:
-                groups.setdefault(f"{v.gene}:{aa}", []).append(v)  # one GDC lookup per unique gene:change
+                groups.setdefault(f"{v.gene}:{aa}", []).append(v)
 
         with httpx.Client(timeout=make_timeout(self.timeout)) as client:
             results.update(run_lookups(

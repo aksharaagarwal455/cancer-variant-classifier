@@ -19,7 +19,7 @@ from typing import Callable
 import httpx
 
 from app.models.variant import Variant
-from app.services.sources.base import (  # noqa: F401  (EvidenceResult re-exported for old imports)
+from app.services.sources.base import (
     CircuitBreaker, EvidenceResult, RateLimiter, SourceStats, make_timeout,
     not_assessable, request_with_retry, run_lookups,
 )

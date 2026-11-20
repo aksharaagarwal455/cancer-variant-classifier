@@ -40,7 +40,7 @@ class EvidenceResult:
     data: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
     retrieved_at: str | None = None
-    source_type: str = "live_api"  # local_db | redis | live_api | skipped | n/a
+    source_type: str = "live_api"
 
 
 def not_assessable(source: str, reason: str) -> EvidenceResult:
@@ -64,7 +64,6 @@ def source_enabled(name: str) -> bool:
     return os.environ.get(f"{name.upper()}_ENABLED", "1") != "0"
 
 
-# ----------------------------------------------------------------------------- HTTP
 def _sleep(seconds: float) -> None:
     time.sleep(min(max(seconds, 0.0), MAX_SLEEP_SECONDS))
 
@@ -115,7 +114,6 @@ class RateLimiter:
             time.sleep(delay)
 
 
-# ----------------------------------------------------------------------------- bookkeeping
 class SourceStats:
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -191,7 +189,6 @@ def run_parallel(items: list, fn: Callable, workers: int = 4, progress: Callable
         return [f.result() for f in futures]
 
 
-# ----------------------------------------------------------------------------- cache-first lookup
 def cached_lookup(*, source: str, table: str, key: str, db_path: str,
                   fetch: Callable[[], tuple[str, dict]], breaker: CircuitBreaker | None,
                   stats: SourceStats, cache_only_reason: str | None = None) -> EvidenceResult:
@@ -201,7 +198,7 @@ def cached_lookup(*, source: str, table: str, key: str, db_path: str,
         stats.hit()
         return EvidenceResult(source=source, status=SourceStatus(local["status"]), data=local["data"],
                               retrieved_at=local["retrieved_at"], source_type="local_db")
-    if cache_only_reason:                      # source intentionally never calls the network
+    if cache_only_reason:
         return not_assessable(source, cache_only_reason)
     if is_offline():
         stats.skip()
@@ -213,7 +210,7 @@ def cached_lookup(*, source: str, table: str, key: str, db_path: str,
     t0 = time.monotonic()
     try:
         status_str, data = fetch()
-    except Exception as e:  # noqa: BLE001  (a source must never crash the run)
+    except Exception as e:
         status_str, data = SourceStatus.UNAVAILABLE.value, {"error": type(e).__name__}
     ok = status_str == SourceStatus.AVAILABLE.value
     stats.live(ok, time.monotonic() - t0)

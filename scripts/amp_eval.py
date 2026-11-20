@@ -143,7 +143,6 @@ def evaluate_mode(
     print(f"Overall Accuracy:      {accuracy * 100:.2f}% ({correct}/{total})")
     print(f"Macro-F1 Score:        {macro_f1:.4f}\n")
 
-    # Per-class metrics
     p, r, f1, support = precision_recall_fscore_support(
         y_true, y_pred, labels=TIERS, zero_division=0
     )
@@ -159,12 +158,10 @@ def evaluate_mode(
     print("Per-Class Metrics:")
     print(metrics_df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 
-    # Confusion matrix
     cm = confusion_matrix(y_true, y_pred, labels=TIERS)
     print("\nConfusion Matrix (Rows=Truth, Cols=Pred [Tier1, Tier2, Tier3, Tier4]):")
     print(cm)
 
-    # Save outputs
     output_dir.mkdir(parents=True, exist_ok=True)
     csv_cm = output_dir / f"amp_cm_{prefix}.csv"
     png_cm = output_dir / f"amp_cm_{prefix}.png"
@@ -197,7 +194,6 @@ def evaluate_held_out(variants: list, evidence_map: dict, truth_map: dict[str, s
     y = np.array([truth_map[k] for k in keys])
     indices = np.arange(len(variants))
 
-    # Stratified split; Tier4 (1 sample) stays in train
     strat_labels = [label if label != "Tier4" else "Tier3" for label in y]
     train_idx, test_idx = train_test_split(indices, test_size=0.20, random_state=42, stratify=strat_labels)
 
@@ -240,7 +236,6 @@ def evaluate_cross_validation(variants: list, evidence_map: dict, truth_map: dic
     genes = np.array([v.gene if v.gene else "UNKNOWN" for v in variants])
     indices = np.arange(len(variants))
 
-    # 1. Stratified 5-Fold CV
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     skf_accs, skf_f1s = [], []
     for train_idx, test_idx in skf.split(indices, y):
@@ -250,7 +245,6 @@ def evaluate_cross_validation(variants: list, evidence_map: dict, truth_map: dic
         skf_accs.append(accuracy_score(test_y, preds))
         skf_f1s.append(f1_score(test_y, preds, labels=TIERS, average="macro", zero_division=0))
 
-    # 2. GroupKFold 5-Fold CV (by gene)
     gkf = GroupKFold(n_splits=5)
     gkf_accs, gkf_f1s = [], []
     for train_idx, test_idx in gkf.split(indices, y, groups=genes):
@@ -322,7 +316,6 @@ def main():
     summary["held_out_evaluation"] = evaluate_held_out(variants, ev_map, truth_map, args.output_dir)
     summary["cross_validation"] = evaluate_cross_validation(variants, ev_map, truth_map)
 
-    # Save summary json
     summary_path = args.output_dir / "amp_eval_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2))
     print(f"\nFull evaluation summary saved to: {summary_path}")

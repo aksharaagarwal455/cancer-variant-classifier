@@ -31,7 +31,7 @@ Tables: `clinvar_evidence`, `gnomad_evidence`, `myvariant_evidence`, `tcga_evide
 | Wall-clock limit | `--max-seconds` (default 900): after that, remaining cache misses are skipped |
 | Offline mode | `--offline` or `EVIDENCE_OFFLINE=1`: cache only, zero network calls |
 | Isolation | a crashing source returns nothing for that source; the run still completes |
-| Honest degradation | skipped lookups are reported as `SOURCE_UNAVAILABLE`; the engines then use the allele-frequency and annotation columns already in the input file. Nothing is invented. |
+| Graceful degradation | skipped lookups are reported as `SOURCE_UNAVAILABLE`; the engines then use the allele-frequency and annotation columns already in the input file. |
 
 ## Parallelism
 

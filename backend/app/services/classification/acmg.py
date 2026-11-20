@@ -100,7 +100,7 @@ def evaluate_acmg(variant: Variant, evidence: VariantEvidence) -> ACMGResult:
 
     cv_signal, cv_detail = _clinvar_signal(evidence)
 
-    null_kind = null_variant_kind(evidence.local_annotation)   # exonic null OR canonical splice site (switchable)
+    null_kind = null_variant_kind(evidence.local_annotation)
     if null_kind and cv_signal == "benign":
         criteria.append(Criterion("PVS1", "NOT_SUPPORTED", None, "pathogenic",
                                   f"Null-type consequence ({null_kind}) but ClinVar reports benign/likely benign; PVS1 not applied",

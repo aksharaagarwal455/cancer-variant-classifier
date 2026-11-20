@@ -18,16 +18,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-from app import config  # noqa: E402,F401
-import os  # noqa: E402
-import httpx  # noqa: E402
+from app import config
+import os
+import httpx
 
-from app.services.normalization.coordinates import apply_genome_build  # noqa: E402
-from app.services.parser.tsv_parser import ParseStatus, parse_tsv  # noqa: E402
-from app.services.sources.clinvar import _variant_key  # noqa: E402
-from app.services.sources.gnomad import _BUILD_TO_DATASET, build_gnomad_variant_id  # noqa: E402
-from app.services.sources.myvariant import _BUILD_TO_ASSEMBLY, resolve_hgvs_genomic_id  # noqa: E402
-from app.services.sources.tcga import parse_protein_change  # noqa: E402
+from app.services.normalization.coordinates import apply_genome_build
+from app.services.parser.tsv_parser import ParseStatus, parse_tsv
+from app.services.sources.clinvar import _variant_key
+from app.services.sources.gnomad import _BUILD_TO_DATASET, build_gnomad_variant_id
+from app.services.sources.myvariant import _BUILD_TO_ASSEMBLY, resolve_hgvs_genomic_id
+from app.services.sources.tcga import parse_protein_change
 
 PINGS = {
     "myvariant": ("GET", "https://myvariant.info/v1/metadata", None),
@@ -49,7 +49,7 @@ def ping(name: str) -> tuple[bool, float, str]:
             last = f"HTTP {r.status_code}"
             if r.status_code != 200:
                 return False, statistics.median(times), last
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             return False, time.monotonic() - t0, f"{type(e).__name__}"
     return True, statistics.median(times), last
 
@@ -90,7 +90,7 @@ def main() -> None:
     seen_tc: set[str] = set()
     for v in ok:
         if _variant_key(v) and _variant_key(v) not in cv:
-            need["clinvar"] += 0  # NCBI position search is cache-only by default; exact-allele ClinVar comes via MyVariant
+            need["clinvar"] += 0
         if build in _BUILD_TO_ASSEMBLY:
             h, _ = resolve_hgvs_genomic_id(v)
             if h and f"{_BUILD_TO_ASSEMBLY[build]}:{h}" not in mv:

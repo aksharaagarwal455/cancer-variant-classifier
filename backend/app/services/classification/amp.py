@@ -47,7 +47,7 @@ class AMPResult:
 
 
 def _sigs(evidence: VariantEvidence) -> list[str] | None:
-    records = clinvar_records(evidence)           # None when ClinVar is hidden (ACMG_IGNORE_CLINVAR=1) or unavailable
+    records = clinvar_records(evidence)
     if records is None:
         return None
     return [r.get("clinical_significance") for r in records if r.get("clinical_significance")]
@@ -124,7 +124,6 @@ def _evaluate_amp_core(variant: Variant, evidence: VariantEvidence) -> AMPResult
         revel_val = float(revel_str) if revel_str not in (None, "", ".") else None
     except ValueError:
         revel_val = None
-    # ClinGen calibrated in-silico damaging; in somatic tiering, in-silico alone promotes established drivers like TP53
     revel_damaging = revel_val is not None and revel_val >= 0.70 and gene == "TP53"
 
     if cv_path:
@@ -143,22 +142,18 @@ def _evaluate_amp_core(variant: Variant, evidence: VariantEvidence) -> AMPResult
 
     strong_pathogenic = cv_path or local_path or high_impact or revel_damaging
 
-    # Tier I gene with strong pathogenic evidence -> Tier I
     if gene in TIER1_GENES and strong_pathogenic:
         ev.append(AMPEvidence("gene_panel", f"{gene} Tier I candidate", "curated panel"))
         return AMPResult(AMPTier.TIER_I, ev, f"{gene} established biomarker with supporting evidence.")
 
-    # Tier II gene with pathogenic evidence or recurrence -> Tier II
     if gene in TIER2_GENES and (strong_pathogenic or tcga_recurrent):
         ev.append(AMPEvidence("gene_panel", f"{gene} Tier II candidate", "curated panel"))
         return AMPResult(AMPTier.TIER_II, ev, f"{gene} recognized cancer gene with supporting evidence.")
 
-    # TP53 non-strong / recurrent -> Tier II
     if gene == "TP53" and (tcga_recurrent or not strong_pathogenic):
         ev.append(AMPEvidence("gene_panel", "TP53 Tier II candidate", "curated panel"))
         return AMPResult(AMPTier.TIER_II, ev, "TP53 recognized cancer gene with supporting evidence.")
 
-    # PIK3CA hotspot recurrence -> Tier II
     if gene == "PIK3CA" and tcga_n is not None and tcga_n >= 3:
         ev.append(AMPEvidence("gene_panel", "PIK3CA Tier II hotspot", "curated panel"))
         return AMPResult(AMPTier.TIER_II, ev, "PIK3CA recognized cancer gene with recurrence evidence.")

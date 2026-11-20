@@ -18,7 +18,7 @@ def clinvar(sig):
 def test_frameshift_rare_is_pathogenic():
     v, e = make(**{"ExonicFunc.refGene": "frameshift_deletion", "AF": "0.00001"})
     r = evaluate_acmg(v, e)
-    assert r.classification == ACMGClassification.PATHOGENIC and r.score == 10  # PVS1 8 + PM2 2
+    assert r.classification == ACMGClassification.PATHOGENIC and r.score == 10
 
 
 def test_splice_site_counts_as_null_by_default(monkeypatch):
@@ -31,7 +31,7 @@ def test_splice_rule_can_be_switched_off(monkeypatch):
     monkeypatch.setenv("ACMG_SPLICE_PVS1", "0")
     v, e = make(**{"Func.refGene": "splicing", "ExonicFunc.refGene": "", "AF": "0.00001"})
     r = evaluate_acmg(v, e)
-    assert r.classification == ACMGClassification.VUS and r.score == 2  # PM2 only
+    assert r.classification == ACMGClassification.VUS and r.score == 2
 
 
 def test_exonic_splicing_missense_is_not_null():

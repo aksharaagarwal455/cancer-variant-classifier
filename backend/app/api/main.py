@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import config  # noqa: F401  (loads .env)
+from app import config
 from app.services.classification.acmg import evaluate_acmg
 from app.services.classification.amp import evaluate_amp
 from app.services.classification.evidence_utils import population_af
@@ -44,7 +44,7 @@ def health():
     return {"status": "ok"}
 
 
-_RUN_LOCK = threading.Lock()   # one classification at a time: the offline switch is process-wide, so runs must not overlap
+_RUN_LOCK = threading.Lock()
 
 
 @app.post("/api/classify")
@@ -61,7 +61,7 @@ def classify_endpoint(file: UploadFile = File(...), limit: int = 30, offline: bo
                 os.environ["EVIDENCE_OFFLINE"] = "1"
             try:
                 return _classify(tmp_path, limit, max_seconds, genome_build)
-            finally:                                   # never leave the server stuck in offline mode
+            finally:
                 if previous is None:
                     os.environ.pop("EVIDENCE_OFFLINE", None)
                 else:

@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
-from app import config  # noqa: F401  (loads .env: NCBI_API_KEY etc.)
+from app import config
 from app.database.db import get_engine, purge_failures
 from app.models.variant import Variant
 from app.services.sources.base import EvidenceResult, SourceStatus
@@ -36,8 +36,8 @@ class VariantEvidence:
     variant_id: str
     local_annotation: dict[str, Any] = field(default_factory=dict)
     myvariant: EvidenceResult | None = None
-    clinvar: EvidenceResult | None = None          # EXACT-allele ClinVar (derived from MyVariant) -- used for scoring
-    clinvar_position: EvidenceResult | None = None  # NCBI search by position -- information only, never scored
+    clinvar: EvidenceResult | None = None
+    clinvar_position: EvidenceResult | None = None
     gnomad: EvidenceResult | None = None
     tcga: EvidenceResult | None = None
 
@@ -73,7 +73,7 @@ class EvidenceService:
     def __init__(self, db_path: str = "data/variant_classifier.db"):
         self.db_path = db_path
         get_engine(db_path)
-        self.purged = purge_failures(db_path)   # old versions stored failures; never trust them
+        self.purged = purge_failures(db_path)
         self.clients: dict[str, Any] = {
             "myvariant": MyVariantClient(db_path=db_path),
             "clinvar": ClinVarClient(db_path=db_path),
@@ -105,7 +105,7 @@ class EvidenceService:
             t0 = time.monotonic()
             try:
                 res = self.clients[name].annotate_batch(variants, progress=callbacks[name])
-            except Exception as e:  # noqa: BLE001  (one broken source must never break the run)
+            except Exception as e:
                 res = {}
                 self.errors[name] = f"{type(e).__name__}: {e}"
             return name, res, time.monotonic() - t0

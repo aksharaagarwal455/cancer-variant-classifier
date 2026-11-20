@@ -23,7 +23,7 @@ from rich.console import Console
 from rich.progress import track
 from rich.table import Table
 
-from app import config  # noqa: F401  (loads .env so NCBI_API_KEY is used)
+from app import config
 
 from app.services.classification.acmg import evaluate_acmg
 from app.services.classification.amp import evaluate_amp

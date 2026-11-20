@@ -294,7 +294,6 @@ function applyFilters() {
   const filterEvidence = document.getElementById('filterEvidence') ? document.getElementById('filterEvidence').value : '';
 
   filteredResults = allResults.filter(r => {
-    // 1. Text search across Gene, Variant ID, Rationale, ClinVar, ACMG
     if (query) {
       const gene = (r.gene || r.Gene || '').toLowerCase();
       const vid = (r.variant_id || '').toLowerCase();
@@ -311,19 +310,16 @@ function applyFilters() {
       if (!match) return false;
     }
 
-    // 2. AMP Tier Filter
     if (filterTier) {
       const tier = pick(r, ['amp_tier', 'tier']);
       if (tier !== filterTier) return false;
     }
 
-    // 3. ACMG Filter
     if (filterAcmg) {
       const acmg = pick(r, ['acmg_classification', 'acmg']);
       if (acmg !== filterAcmg) return false;
     }
 
-    // 4. Quality Filter
     if (filterQuality) {
       if (filterQuality === 'FLAGGED') {
         const flags = r.review_flags || [];
@@ -334,7 +330,6 @@ function applyFilters() {
       }
     }
 
-    // 5. Evidence Filter
     if (filterEvidence) {
       if (filterEvidence === 'TCGA') {
         const tcga = pick(r, ['tcga_cases']);

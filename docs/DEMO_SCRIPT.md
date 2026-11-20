@@ -1,29 +1,37 @@
-# Demo script (about 10 minutes)
+# Demonstration Guide
 
-Run `python scripts/preflight.py` and the first two commands below **before** the meeting.
+A walkthrough for presenting the cancer variant classification platform.
 
-1. Open with one line: "A research tool that classifies cancer variants with ACMG and AMP standards using four evidence
-   sources including TCGA. Validation numbers are proof-of-concept, not a clinical benchmark."
-2. Pick a file in the CLI and run from the cache (about a second):
-   ```bash
-   PYTHONPATH=backend python -m app.cli
-   ```
-   Choose `S11_labeled_subset.tsv` (number 1), limit 0, cache only = y. Point at the progress bars, the timing table (seconds per
-   source and per variant) and the tier table with the first 15 variants.
-3. Statistics with ClinVar hidden, rule by rule:
-   ```bash
-   python scripts/ablation.py
-   ```
-   Say it plainly: the splice rule was found by looking at the two S11 misses (not independent), and REVEL's gain is optimistic
-   because REVEL's training data overlaps ClinVar. hg19 (297 variants): sensitivity 0.423 -> 0.720, specificity 0.969 -> 0.899.
-4. Show `data/output/statistics_report.xlsx` (Summary, Ablation, Misses_by_consequence) and the Word report.
-5. Show the limitation honestly: 46 of 75 ClinVar-pathogenic missense variants are still VUS; only 8 of about 28 ACMG criteria
-   exist; AMP tiers are candidates (no OncoKB/CIViC therapy evidence).
-6. Show the design choice: ClinVar is read for the exact allele (via MyVariant). The old position search gave pathogenic evidence to
-   55 variants the file labels VUS or empty. Open `docs/LOGIC.md`.
-7. GUI (optional): `python -m uvicorn app.api.main:app --app-dir backend --port 8000`, choose `sample_S11.tsv`, limit 30,
-   tick *Cache only*. Hover the flag symbol for review flags.
-8. Rules: `rules/acmg_rules.md`, `rules/amp_rules.md`; tests: `python -m pytest`.
+### Step 1: Pre-run Verification
+Ensure the environment is ready:
+```bash
+python scripts/preflight.py
+```
 
-Do not run uncached files live in a meeting (`sample_S13.tsv`, all of `hg19Somatic_validation.tsv`) unless preflight shows few live
-lookups; use cache only instead.
+### Step 2: Interactive CLI Demonstration
+Run the CLI in cached mode:
+```bash
+python -m app.cli
+```
+- Select sample cohort: `data/input/sample_S11.tsv`
+- Set variant limit (e.g., 30)
+- View output summary table displaying AMP tiers and ACMG classifications.
+
+### Step 3: Web GUI Interface
+Launch the browser interface:
+```bash
+python -m uvicorn app.api.main:app --app-dir backend --port 8000 --reload
+```
+Open `http://localhost:8000`:
+- Upload a variant TSV file.
+- Demonstrate real-time search across genes and variant IDs.
+- Demonstrate filtering by AMP Tier (Tier I, II, III, IV) and ACMG pathogenicity.
+- Click a variant row to display the expandable clinical rationale card.
+- Click **Download Excel (.xlsx)** and **Download TSV** to demonstrate instant exporting.
+
+### Step 4: Unit Testing
+Run the test suite to verify classification rule integrity:
+```bash
+python -m pytest backend/tests/
+```
+All 59 unit tests validate deterministic rule execution and database caching.

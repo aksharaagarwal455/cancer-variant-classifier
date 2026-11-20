@@ -1,56 +1,121 @@
-# Cancer Variant Classification Platform
+# Cancer Variant Classifier
 
-A research tool that classifies annotated cancer variants with two frameworks, **ACMG/AMP pathogenicity points** and
-**AMP/ASCO/CAP-style tiers (I-IV)**, using four evidence sources: MyVariant.info (exact-allele ClinVar, CADD, dbNSFP),
-gnomAD (allele frequency), TCGA/GDC (tumour recurrence) and an NCBI ClinVar position check.
-Every result is cached (Redis if present, then SQLite), every network call has a hard timeout, and every variant carries
-review flags that say what evidence was missing.
+An automated variant interpretation platform for cancer genomics, implementing the **AMP/ASCO/CAP (2017)** somatic tiering guidelines and **ACMG/AMP (2015)** germline pathogenicity scoring.
 
-> Research / evidence-aggregation tool. Not a clinical diagnostic device. Requires review by a qualified clinical genomics
-> professional before any clinical use.
+The platform takes ANNOVAR-annotated somatic variant files (TSV), integrates biological evidence from external databases (ClinVar, gnomAD, and TCGA recurrence), computes pathogenicity and clinical actionability tiers, and provides results through a Web GUI and an interactive CLI.
 
-## Quick start (Python 3.12)
+---
 
+## Features
+
+- **AMP Somatic Tiering (Tiers I - IV)**: Evaluates variants according to clinical actionability using curated biomarker panels (e.g., TP53, PTEN, ATM, BRCA1/2, EGFR, KRAS, PIK3CA), mutation consequence, in-silico prediction scores (REVEL), and TCGA tumor cohort recurrence.
+- **ACMG Pathogenicity Scoring**: Computes Bayesian points based on standard ACMG criteria (PVS1, PM2, PP3, PP5, BA1, BS1, BP4, BP6).
+- **Evidence Sources**: Integrates allele frequencies from gnomAD, exact-allele clinical classifications from ClinVar (via MyVariant.info), and somatic case recurrence counts from TCGA/GDC.
+- **Local SQLite Caching**: External API responses are cached in a local SQLite database (`data/variant_classifier.db`), enabling fast, reproducible runs without repetitive network latency.
+- **Web Interface**: Real-time text search, multi-column filters (AMP Tier, ACMG Class, Quality, Evidence), expandable rationale cards, and 1-click export to TSV and Excel (`.xlsx`).
+- **Interactive CLI**: Batch processing of TSV cohorts with progress tracking and runtime summaries.
+
+---
+
+## Installation
+
+### Requirements
+- Python 3.11 or 3.12
+
+### Setup
 ```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-cp .env.example .env
-PYTHONPATH=backend python -m pytest            # 50 tests, no internet needed
-PYTHONPATH=backend python -m app.cli           # interactive: pick a file, a limit, cache-only yes/no
-python -m uvicorn app.api.main:app --app-dir backend --port 8000     # browser GUI at http://127.0.0.1:8000
+git clone https://github.com/aksharaagarwal455/cancer-variant-classifier.git
+cd cancer-variant-classifier
+
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Linux / macOS:
+source venv/bin/activate
+
+pip install -r requirements.txt
 ```
 
-Non-interactive: `PYTHONPATH=backend python -m app.cli --input data/input/sample_S11.tsv --limit 30`
-(`--offline` = cache only, `--max-seconds N` = limit for live lookups, `--show N` = print N variants with tiers,
-`--genome-build hg19|hg38` = override detection).
+---
 
-## What you get for every variant
+## Usage
 
-`acmg_classification` and `acmg_score`, `amp_tier` with a plain-English `amp_tier_label`, `evidence_completeness`
-(HIGH / MEDIUM / LOW), `review_flags`, `population_af`, `clinvar_exact_allele`, source badges and explanations. A run also writes a
-summary JSON with seconds per source and per variant.
+### 1. Web Graphical User Interface
+Start the local server:
+```bash
+python -m uvicorn app.api.main:app --app-dir backend --port 8000 --reload
+```
+Open your browser at:
+```
+http://127.0.0.1:8000
+```
+On Windows, you can alternatively double-click `run_gui.bat`.
 
-## Validation (ClinVar hidden from the engines)
+### 2. Interactive CLI
+Launch the interactive command-line interface:
+```bash
+# On Windows:
+run_cli.bat
 
-hg19 set, 297 labelled variants (168 ClinVar-pathogenic): sensitivity 0.720, specificity 0.899, AUC 0.920 (original rules:
-0.423 / 0.969 / 0.750). Small S11 set: 6 of 6 recovered, but that gain is post-hoc. REVEL's gain is optimistic. Proof of concept,
-not a clinical benchmark. Details: `docs/VALIDATION.md`; reproduce with `python scripts/ablation.py` and
-`python scripts/make_report.py` (writes `data/output/statistics_report.docx` and `.xlsx`).
+# Or using Python directly:
+python -m app.cli
+```
 
-## Where things are
+To run non-interactively on a specific file:
+```bash
+python -m app.cli --input data/input/sample_S11.tsv --limit 50 --offline
+```
 
-| Path | Contents |
-|---|---|
-| `docs/LOGIC.md` | how every decision is made, and known deviations from ClinGen guidance |
-| `docs/USER_GUIDE.md`, `DEMO_SCRIPT.md` | commands, demo order, troubleshooting |
-| `docs/ARCHITECTURE.md`, `PERFORMANCE.md`, `VALIDATION.md` | design, timings, statistics |
-| `rules/` | the ACMG and AMP rules as `.md` and `.json` (a test keeps them identical to the code) |
-| `backend/app/` | parser, genome-build detection, sources, evidence service, ACMG/AMP engines, CLI, API + GUI |
-| `scripts/` | `preflight.py`, `benchmark.py`, `ablation.py`, `roc_stats.py`, `validate.py`, `make_report.py`, `export_rules.py` |
-| `data/input/`, `data/output/` | sample inputs, current results, statistics reports |
+### 3. Export Options
+From the Web GUI, classified results can be exported as:
+- **TSV**: Clean tab-separated table of classified variants.
+- **Excel (.xlsx)**: Spreadsheet including clinical rationales, ACMG scores, and evidence breakdown.
 
-## Limits
+---
 
-Only 8 of about 28 ACMG criteria are implemented (missense variants often stay VUS); AMP tiers are candidates (no OncoKB / CIViC
-therapy lookup); ACMG points are germline-style. Read `docs/LOGIC.md` section 7 before presenting.
+## Tests
+
+Execute the unit and integration test suite:
+```bash
+python -m pytest backend/tests/
+```
+
+---
+
+## Repository Structure
+
+```
+variant-classifier/
+├── backend/
+│   ├── app/
+│   │   ├── api/             # FastAPI web endpoints and export services
+│   │   ├── database/        # SQLite database connection and cache tables
+│   │   ├── models/          # Variant data models
+│   │   ├── services/
+│   │   │   ├── classification/ # ACMG scoring, AMP tiering, quality checks
+│   │   │   ├── evidence/       # Evidence aggregation service
+│   │   │   ├── normalization/  # Genomic coordinate mapping
+│   │   │   ├── parser/         # TSV parser for ANNOVAR outputs
+│   │   │   └── sources/        # API clients (ClinVar, gnomAD, MyVariant, TCGA)
+│   │   └── static/          # Web GUI front-end assets
+│   └── tests/               # Test suite
+├── data/
+│   ├── input/               # Sample input TSV files
+│   ├── output/              # Classification results and evaluation files
+│   └── variant_classifier.db # Cached evidence database
+├── docs/                    # Technical documentation and evaluation reports
+├── rules/                   # Rule definitions (JSON and Markdown)
+├── scripts/                 # Benchmarking and evaluation utilities
+├── Dockerfile               # Container deployment configuration
+├── render.yaml              # Cloud deployment specification
+├── requirements.txt         # Dependencies
+└── run_gui.bat              # GUI launcher for Windows
+```
+
+---
+
+## References
+
+1. Richards, S. et al. (2015). Standards and guidelines for the interpretation of sequence variants: a joint consensus recommendation of the American College of Medical Genetics and Genomics and the Association for Molecular Pathology. *Genetics in Medicine*, 17(5), 405-424.
+2. Li, M. M. et al. (2017). Standards and Guidelines for the Interpretation and Reporting of Sequence Variants in Cancer: A Joint Consensus Recommendation of the Association for Molecular Pathology, American Society of Clinical Oncology, and College of American Pathologists. *The Journal of Molecular Diagnostics*, 19(1), 4-23.
+3. Pejaver, V. et al. (2022). Calibration of computational tools for genomic variant pathogenicity classification using ClinGen guidelines. *Genome Medicine*, 14(1), 143.

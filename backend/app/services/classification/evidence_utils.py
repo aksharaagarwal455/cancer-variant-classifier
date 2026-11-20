@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 
-# -------- ClinVar ---------------------------------------------------------------------------------
 def clinvar_ignored() -> bool:
     """ACMG_IGNORE_CLINVAR=1 hides ClinVar from BOTH engines (used for independent validation)."""
     return os.environ.get("ACMG_IGNORE_CLINVAR") == "1"
@@ -20,7 +19,6 @@ def clinvar_records(evidence) -> list[dict] | None:
     return cv.data.get("records", []) or []
 
 
-# -------- population frequency --------------------------------------------------------------------
 LOCAL_AF_COLUMNS = ("AF", "AF_popmax", "AF_raw", "ExAC_ALL")
 
 
@@ -63,7 +61,6 @@ def population_af(evidence) -> tuple[float | None, str]:
     return None, "no population frequency data"
 
 
-# -------- REVEL (ClinGen SVI calibration, Pejaver et al. 2022) ------------------------------------
 REVEL_PATHOGENIC = ((0.932, "STRONG"), (0.773, "MODERATE"), (0.644, "SUPPORTING"))
 REVEL_BENIGN = ((0.003, "VERY_STRONG"), (0.016, "STRONG"), (0.183, "MODERATE"), (0.290, "SUPPORTING"))
 

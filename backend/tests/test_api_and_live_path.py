@@ -24,7 +24,6 @@ def small_file(tmp_path, n=6):
     return p
 
 
-# ---------------------------------------------------------------- GUI API
 def test_api_classify_offline_returns_tiers_flags_and_timings(tmp_db, tmp_path, monkeypatch):
     from app.api import main
     monkeypatch.setattr(main, "DB_PATH", tmp_db)
@@ -39,7 +38,7 @@ def test_api_classify_offline_returns_tiers_flags_and_timings(tmp_db, tmp_path, 
         assert key in first
     assert first["amp_tier"].startswith("TIER_")
     import os
-    assert os.environ.get("EVIDENCE_OFFLINE") != "1"          # the offline switch must not leak after the request
+    assert os.environ.get("EVIDENCE_OFFLINE") != "1"
 
 
 def test_api_rejects_a_file_without_variants(tmp_db, tmp_path, monkeypatch):
@@ -89,13 +88,11 @@ def test_api_export_tsv_and_xlsx(tmp_db):
         ],
         "format": "tsv",
     }
-    # TSV export
     r_tsv = c.post("/api/export", json=payload)
     assert r_tsv.status_code == 200
     assert "TP53" in r_tsv.text
     assert "chr17:7577120:C:T" in r_tsv.text
 
-    # XLSX export
     payload["format"] = "xlsx"
     r_xlsx = c.post("/api/export", json=payload)
     assert r_xlsx.status_code == 200
@@ -103,7 +100,6 @@ def test_api_export_tsv_and_xlsx(tmp_db):
     assert r_xlsx.headers["content-type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
-# ---------------------------------------------------------------- live path against a fake server
 def test_live_path_end_to_end_with_fake_servers(tmp_db, tmp_path, monkeypatch):
     calls = {"myvariant": 0, "gnomad": 0, "gdc": 0, "eutils": 0}
 
@@ -114,7 +110,7 @@ def test_live_path_end_to_end_with_fake_servers(tmp_db, tmp_path, monkeypatch):
             ids = httpx.QueryParams(request.content.decode())["ids"].split(",")
             out = []
             for i, vid in enumerate(ids):
-                if i == 0:   # first variant: exact-allele ClinVar pathogenic
+                if i == 0:
                     out.append({"query": vid, "clinvar": {"variant_id": 1, "rcv": [
                         {"accession": "RCV1", "clinical_significance": "Pathogenic", "conditions": {"name": "X"}}]}})
                 else:
@@ -145,13 +141,13 @@ def test_live_path_end_to_end_with_fake_servers(tmp_db, tmp_path, monkeypatch):
     first = ev[ok[0].variant_id]
     assert first.clinvar.data["match"] == "exact_allele"
     assert first.clinvar.data["records"][0]["clinical_significance"] == "Pathogenic"
-    for v in ok:   # both engines run on live-path evidence without errors
+    for v in ok:
         assert evaluate_acmg(v, ev[v.variant_id]).classification
         assert evaluate_amp(v, ev[v.variant_id]).tier
 
     before = dict(calls)
     svc2 = EvidenceService(db_path=tmp_db)
-    svc2.gather(ok)                                   # second run: everything from the cache, zero network calls
+    svc2.gather(ok)
     assert calls == before
     assert all(t["live_calls"] == 0 for t in svc2.timings.values())
 
@@ -160,10 +156,10 @@ def test_api_warns_when_genome_build_cannot_be_detected(tmp_db, tmp_path, monkey
     from app.api import main
     monkeypatch.setattr(main, "DB_PATH", tmp_db)
     client = TestClient(main.app)
-    with open(small_file(tmp_path, 3), "rb") as fh:          # too few landmark genes to detect the build
+    with open(small_file(tmp_path, 3), "rb") as fh:
         body = client.post("/api/classify?limit=3&offline=true", files={"file": ("s.tsv", fh)}).json()
     assert "UNKNOWN" in body["genome_build"] and any("Genome build" in w for w in body["warnings"])
-    with open(small_file(tmp_path, 3), "rb") as fh:          # the user supplies it
+    with open(small_file(tmp_path, 3), "rb") as fh:
         body = client.post("/api/classify?limit=3&offline=true&genome_build=hg19", files={"file": ("s.tsv", fh)}).json()
     assert body["genome_build"] == "GRCh37" and not body["warnings"]
 

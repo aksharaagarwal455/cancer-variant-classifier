@@ -74,13 +74,13 @@ def test_high_revel_plus_rare_variant_reaches_likely_pathogenic(monkeypatch):
     monkeypatch.delenv("ACMG_REVEL_PP3", raising=False)
     ev = VariantEvidence("v", {"ExonicFunc.refGene": "nonsynonymous SNV", "AF": "0", "REVEL_score": "0.95"})
     r = evaluate_acmg(V(), ev)
-    assert r.score == 6 and r.classification.value == "LIKELY_PATHOGENIC"   # PM2 2 + PP3 strong 4
+    assert r.score == 6 and r.classification.value == "LIKELY_PATHOGENIC"
 
 
 def test_revel_switch_turns_calibration_off(monkeypatch):
     monkeypatch.setenv("ACMG_REVEL_PP3", "0")
     ev = VariantEvidence("v", {"ExonicFunc.refGene": "nonsynonymous SNV", "AF": "0", "REVEL_score": "0.95"})
-    assert evaluate_acmg(V(), ev).score == 2                               # PM2 only
+    assert evaluate_acmg(V(), ev).score == 2
 
 
 def test_ignore_clinvar_also_hides_it_from_amp(monkeypatch):
@@ -123,7 +123,6 @@ def test_pvs1_outside_known_lof_genes_is_flagged():
     assert not any("loss-of-function" in f for f in flags)
 
 
-# ---------------------------------------------------------------- API
 def _client():
     from fastapi.testclient import TestClient
     from app.api.main import app

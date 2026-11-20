@@ -31,7 +31,7 @@ def get_redis():
                                             socket_connect_timeout=1, socket_timeout=1)
             _redis_client.ping()
         except Exception:
-            _redis_client = False  # Redis unavailable -- fall back silently to SQLite-only
+            _redis_client = False
     return _redis_client
 
 DEFAULT_DB_PATH = "data/variant_classifier.db"
@@ -77,7 +77,7 @@ def get_engine(db_path: str = DEFAULT_DB_PATH) -> Engine:
         _engine = create_engine(f"sqlite:///{db_path}", future=True, connect_args={"timeout": 30})
 
         @event.listens_for(_engine, "connect")
-        def _pragmas(dbapi_conn, _):  # many threads write results concurrently
+        def _pragmas(dbapi_conn, _):
             cur = dbapi_conn.cursor()
             cur.execute("PRAGMA journal_mode=WAL")
             cur.execute("PRAGMA synchronous=NORMAL")
@@ -122,7 +122,7 @@ def get_local(table: str, variant_key: str, db_path: str = DEFAULT_DB_PATH) -> d
             text(f"SELECT status, data_json, retrieved_at, source_type FROM {table} WHERE variant_key = :k"),
             {"k": variant_key},
         ).fetchone()
-    if row is None or row[0] != "AVAILABLE":  # failures are never served from cache
+    if row is None or row[0] != "AVAILABLE":
         return None
     entry = {"status": row[0], "data": json.loads(row[1]), "retrieved_at": row[2], "source_type": row[3]}
     if r:
@@ -138,7 +138,7 @@ def save_local(
     source_type: str = "live_api",
     db_path: str = DEFAULT_DB_PATH,
 ) -> None:
-    if status != "AVAILABLE":  # never store failures
+    if status != "AVAILABLE":
         return
     engine = get_engine(db_path)
     now = datetime.now(timezone.utc).isoformat()

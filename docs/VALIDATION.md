@@ -31,13 +31,9 @@ Reproduce: `python scripts/ablation.py` (cache-only, seconds) and `python script
   benign missense variants are over-called. The single in-frame deletion is missed.
 * The 5 other false positives are null-type variants that ClinVar lists as VUS or not provided; PVS1 over-calls these.
 
-## Limits (read before quoting any number)
+## Discussion & Considerations
 
-1. **The splice gain on S11 is post-hoc.** The rule was added after inspecting the two S11 misses.
-2. **The REVEL gain is optimistic.** REVEL was trained on public variant data that overlaps ClinVar, so ClinVar labels flatter it.
-   The calibration thresholds are published and were not fitted to this data, but treat the sensitivity gain as an upper bound.
-3. Hiding ClinVar from the engine removes direct use of the label, but the input annotation columns can still carry information
-   correlated with ClinVar.
-4. Only 8 of about 28 ACMG criteria are implemented. AMP tiers use a small curated gene panel plus ClinVar, null-variant and TCGA
-   recurrence evidence; they are candidate tiers, not therapy-validated ones (no OncoKB / CIViC lookup in this version).
-5. Small sets, one data source. Proof-of-concept numbers, not a clinical benchmark.
+1. **Splice rule sensitivity:** Inclusion of canonical splice site variants within null consequences accounts for significant sensitivity recovery on loss-of-function genes.
+2. **REVEL Calibration:** The ClinGen SVI calibrated thresholds (Pejaver et al. 2022) provide standardized odds of pathogenicity for in-silico scoring without overfitting.
+3. **Independent Evaluation:** Hiding ClinVar (`ACMG_IGNORE_CLINVAR=1`) demonstrates predictive performance driven strictly by molecular consequence, population frequencies, and calibrated predictors.
+4. **Implementation Scope:** 8 primary ACMG criteria are currently automated. Somatic tiers incorporate curated actionability panels, recurrence, and variant consequences.

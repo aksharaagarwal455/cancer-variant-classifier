@@ -14,10 +14,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-from app.services.classification import acmg, amp  # noqa: E402
-from app.services.classification import evidence_utils as eu  # noqa: E402
-from app.services.classification.consequence import EXONIC_NULL  # noqa: E402
-from app.services.classification.quality import LOF_MECHANISM_GENES  # noqa: E402
+from app.services.classification import acmg, amp
+from app.services.classification import evidence_utils as eu
+from app.services.classification.consequence import EXONIC_NULL
+from app.services.classification.quality import LOF_MECHANISM_GENES
 
 
 def current_rules() -> dict[str, dict]:

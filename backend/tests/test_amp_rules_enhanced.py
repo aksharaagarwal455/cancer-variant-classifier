@@ -68,6 +68,5 @@ def test_amp_local_annotated_benign_is_tier_iv():
 
 
 def test_amp_non_panel_gene_pathogenic_is_tier_iii():
-    # RAD50 and FANCD2 are not in Tier I or II panels; even if null/pathogenic, they remain Tier III (VUS in clinical guidelines)
     v, e = make_var("RAD50", **{"ExonicFunc.refGene": "stopgain", "AF": "0.00001"})
     assert evaluate_amp(v, e).tier == AMPTier.TIER_III

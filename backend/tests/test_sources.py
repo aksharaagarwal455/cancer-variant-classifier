@@ -28,7 +28,7 @@ def test_retry_is_bounded_and_fast(monkeypatch):
         r = request_with_retry(c, "GET", "http://x/", max_retries=2)
     assert r.status_code == 429
     assert len(calls) == 3
-    assert max(sleeps) <= 4.0  # a huge Retry-After must not stall a run
+    assert max(sleeps) <= 4.0
 
 
 def test_failures_are_not_cached_but_successes_are(tmp_db):
@@ -78,7 +78,7 @@ def test_run_parallel_is_faster_than_sequential_and_keeps_order():
     t0 = time.monotonic()
     out = run_parallel(list(range(8)), lambda i: (time.sleep(0.1), i)[1], workers=4)
     assert out == list(range(8))
-    assert time.monotonic() - t0 < 0.6  # sequential would be 0.8 s
+    assert time.monotonic() - t0 < 0.6
 
 
 def variants(n):
@@ -108,9 +108,9 @@ def test_myvariant_uses_one_batch_request_for_many_variants(tmp_db):
         res = mv.annotate_batch(variants(20))
     finally:
         mod.httpx.Client = orig
-    assert len(seen) == 1                                    # 20 variants -> 1 HTTP call
+    assert len(seen) == 1
     assert all(r.status.value == "AVAILABLE" for r in res.values())
-    res2 = mv.annotate_batch(variants(20))                   # now served from cache, no client needed
+    res2 = mv.annotate_batch(variants(20))
     assert all(r.source_type == "local_db" for r in res2.values())
 
 

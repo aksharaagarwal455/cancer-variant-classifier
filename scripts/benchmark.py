@@ -16,23 +16,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-import httpx  # noqa: E402
+import httpx
 
-from app import config  # noqa: E402,F401
-from app.services.normalization.coordinates import apply_genome_build  # noqa: E402
-from app.services.parser.tsv_parser import ParseStatus, parse_tsv  # noqa: E402
-from app.services.sources.base import make_timeout  # noqa: E402
-from app.services.sources.clinvar import ClinVarClient  # noqa: E402
-from app.services.sources.gnomad import _BUILD_TO_DATASET, GnomadClient, build_gnomad_variant_id  # noqa: E402
-from app.services.sources.myvariant import _BUILD_TO_ASSEMBLY, MyVariantClient, resolve_hgvs_genomic_id  # noqa: E402
-from app.services.sources.tcga import fetch_tcga_cases, parse_protein_change  # noqa: E402
+from app import config
+from app.services.normalization.coordinates import apply_genome_build
+from app.services.parser.tsv_parser import ParseStatus, parse_tsv
+from app.services.sources.base import make_timeout
+from app.services.sources.clinvar import ClinVarClient
+from app.services.sources.gnomad import _BUILD_TO_DATASET, GnomadClient, build_gnomad_variant_id
+from app.services.sources.myvariant import _BUILD_TO_ASSEMBLY, MyVariantClient, resolve_hgvs_genomic_id
+from app.services.sources.tcga import fetch_tcga_cases, parse_protein_change
 
 
 def timed(fn):
     t0 = time.monotonic()
     try:
         status, data = fn()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         status, data = "SOURCE_UNAVAILABLE", {"error": type(e).__name__}
     return time.monotonic() - t0, status == "AVAILABLE", data.get("error", "")
 
@@ -74,7 +74,7 @@ def main() -> None:
             g = build_gnomad_variant_id(v)
             if g and build in _BUILD_TO_DATASET:
                 rows.append(timed(lambda v=v, g=g: gn._live_fetch(v, g, _BUILD_TO_DATASET[build], c)))
-                time.sleep(1.0)  # same spacing the real run uses
+                time.sleep(1.0)
         report("gnomad", rows)
         rows = []
         for v in sample:
