@@ -1,0 +1,105 @@
+{
+  "framework": "ClinGen / Tavtigian 2018 Bayesian points (PMID 29300386)",
+  "implemented_criteria": [
+    "PVS1",
+    "PM2",
+    "PP3",
+    "PP5",
+    "BA1",
+    "BS1",
+    "BP4",
+    "BP6"
+  ],
+  "not_implemented": "about 20 of the 28 ACMG/AMP criteria (e.g. PS1, PS3, PM1, PM5, PP1, PP2, PP4, BS2-BS4, BP1-BP3, BP5, BP7)",
+  "points": {
+    "VERY_STRONG": 8,
+    "STRONG": 4,
+    "MODERATE": 2,
+    "SUPPORTING": 1
+  },
+  "allele_frequency_thresholds": {
+    "BA1": 0.05,
+    "BS1": 0.01,
+    "PM2": 0.0001
+  },
+  "pvs1_exonic_null_consequences": [
+    "frameshift_deletion",
+    "frameshift_insertion",
+    "frameshift_substitution",
+    "stopgain",
+    "stoploss"
+  ],
+  "pvs1_canonical_splice": {
+    "annovar_func_refgene": "splicing",
+    "switch": "ACMG_SPLICE_PVS1=0 turns it off",
+    "note": "added after inspecting two validation misses; post-hoc"
+  },
+  "pvs1_review_flag_unless_gene_in": [
+    "APC",
+    "ATM",
+    "BARD1",
+    "BRCA1",
+    "BRCA2",
+    "CDH1",
+    "CDKN2A",
+    "CHEK2",
+    "MLH1",
+    "MSH2",
+    "MSH6",
+    "NF1",
+    "NF2",
+    "PALB2",
+    "PMS2",
+    "PTEN",
+    "RAD51C",
+    "RAD51D",
+    "RB1",
+    "SMAD4",
+    "STK11",
+    "TP53",
+    "VHL"
+  ],
+  "in_silico_columns": [
+    "SIFT_pred",
+    "Polyphen2_HVAR_pred",
+    "Polyphen2_HDIV_pred",
+    "MutationTaster_pred",
+    "FATHMM_pred",
+    "MetaSVM_pred",
+    "MetaLR_pred"
+  ],
+  "damaging_prediction_values": [
+    "A",
+    "D",
+    "H",
+    "P"
+  ],
+  "cadd_phred_damaging_at_or_above": 20,
+  "pp3_revel_calibration": {
+    "source": "ClinGen SVI, Pejaver et al. 2022 (PMID 36413997)",
+    "switch": "ACMG_REVEL_PP3=0 turns it off",
+    "pathogenic_at_or_above": {
+      "STRONG": 0.932,
+      "MODERATE": 0.773,
+      "SUPPORTING": 0.644
+    },
+    "benign_at_or_below": {
+      "VERY_STRONG": 0.003,
+      "STRONG": 0.016,
+      "MODERATE": 0.183,
+      "SUPPORTING": 0.29
+    },
+    "note": "used first; if REVEL is missing the >=3-predictor vote below is used"
+  },
+  "pp3_needs_damaging_at_least": 3,
+  "bp4_needs_benign_at_least": 3,
+  "class_cutoffs": {
+    "PATHOGENIC": ">= 10",
+    "LIKELY_PATHOGENIC": "6 to 9",
+    "VUS": "0 to 5",
+    "LIKELY_BENIGN": "-6 to -1",
+    "BENIGN": "<= -7, or BA1"
+  },
+  "population_frequency": "highest of gnomAD exome, gnomAD genome and the file AF columns; gnomAD 'Variant not found' with no file AF counts as absent (AF 0)",
+  "clinvar": "PP5/BP6 from EXACT-allele ClinVar P/LP or B/LB (taken from MyVariant, which matches on chrom/pos/ref/alt); the NCBI position search is informational only; hidden from BOTH engines with ACMG_IGNORE_CLINVAR=1; benign ClinVar blocks PVS1"
+}

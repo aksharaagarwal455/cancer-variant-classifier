@@ -1,0 +1,86 @@
+{
+  "input": "data/input/hg19Somatic_validation.tsv",
+  "output": "data/output/hg19_before.tsv",
+  "genome_build": "GRCh37",
+  "total_rows": 2251,
+  "unique_variants_classified": 473,
+  "mode": "offline",
+  "max_seconds": 900,
+  "env": {
+    "ACMG_IGNORE_CLINVAR": "1",
+    "ACMG_SPLICE_PVS1": "0",
+    "GNOMAD_ENABLED": "",
+    "TCGA_ENABLED": "",
+    "EVIDENCE_OFFLINE": "1"
+  },
+  "evidence_seconds": 0.77,
+  "seconds_per_variant": 0.0016,
+  "lookups": {
+    "local_db": 1320,
+    "live_api": 0,
+    "skipped": 507,
+    "not_assessable": 65
+  },
+  "source_timings": {
+    "myvariant": {
+      "cache_hits": 473,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 0,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.67
+    },
+    "clinvar": {
+      "cache_hits": 473,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 0,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.39
+    },
+    "gnomad": {
+      "cache_hits": 350,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 123,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.45
+    },
+    "tcga": {
+      "cache_hits": 23,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 383,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.36
+    }
+  },
+  "acmg_counts": {
+    "LIKELY_PATHOGENIC": 7,
+    "VUS": 364,
+    "PATHOGENIC": 87,
+    "LIKELY_BENIGN": 15
+  },
+  "amp_counts": {
+    "TIER_III": 386,
+    "TIER_II": 61,
+    "TIER_I": 25,
+    "TIER_IV": 1
+  },
+  "evidence_completeness": {
+    "LOW": 211,
+    "HIGH": 262
+  }
+}

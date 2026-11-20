@@ -1,0 +1,86 @@
+{
+  "input": "data/input/sample_S12.tsv",
+  "output": "data/output/sample_S12_results.tsv",
+  "genome_build": "GRCh37",
+  "total_rows": 611,
+  "unique_variants_classified": 611,
+  "mode": "offline",
+  "max_seconds": 900,
+  "env": {
+    "ACMG_IGNORE_CLINVAR": "",
+    "ACMG_SPLICE_PVS1": "",
+    "GNOMAD_ENABLED": "",
+    "TCGA_ENABLED": "",
+    "EVIDENCE_OFFLINE": "1"
+  },
+  "evidence_seconds": 0.4,
+  "seconds_per_variant": 0.0007,
+  "lookups": {
+    "local_db": 1619,
+    "live_api": 0,
+    "skipped": 355,
+    "not_assessable": 470
+  },
+  "source_timings": {
+    "myvariant": {
+      "cache_hits": 611,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 0,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.39
+    },
+    "clinvar": {
+      "cache_hits": 611,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 0,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.37
+    },
+    "gnomad": {
+      "cache_hits": 364,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 247,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.36
+    },
+    "tcga": {
+      "cache_hits": 33,
+      "live_ok": 0,
+      "live_failed": 0,
+      "skipped": 108,
+      "live_calls": 0,
+      "live_avg_s": null,
+      "live_median_s": null,
+      "live_max_s": null,
+      "wall_s": 0.32
+    }
+  },
+  "acmg_counts": {
+    "PATHOGENIC": 348,
+    "VUS": 259,
+    "LIKELY_BENIGN": 4
+  },
+  "amp_counts": {
+    "TIER_III": 392,
+    "TIER_II": 87,
+    "TIER_I": 129,
+    "TIER_IV": 3
+  },
+  "evidence_completeness": {
+    "MEDIUM": 331,
+    "HIGH": 75,
+    "LOW": 205
+  }
+}
